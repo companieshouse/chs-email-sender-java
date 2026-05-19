@@ -32,6 +32,9 @@
         <wiremock-standalone.version>3.13.2</wiremock-standalone.version>
         <!-- sonar -->
         <sonar.coverage.exclusions>**/Application.java</sonar.coverage.exclusions>
+        <kafka-clients.version>4.2.0</kafka-clients.version>
+        <jakarta.annotation-api.version>3.0.0</jakarta.annotation-api.version>
+        <avro.version>1.12.1</avro.version>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -87,7 +90,24 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
+        <dependency>
+            <groupId>org.apache.kafka</groupId>
+            <artifactId>kafka-clients</artifactId>
+            <version>${kafka-clients.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.annotation</groupId>
+            <artifactId>jakarta.annotation-api</artifactId>
+            <version>${jakarta.annotation-api.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.avro</groupId>
+            <artifactId>avro</artifactId>
+            <version>${avro.version}</version>
+            <scope>compile</scope>
+        </dependency>
         <!-- companies house -->
         <dependency>
             <groupId>uk.gov.companieshouse</groupId>
