@@ -1,6 +1,6 @@
 package uk.gov.companieshouse.chsemailsender.logging;
 
-import email.message_send;
+import email.email_send;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -64,9 +64,9 @@ class LoggingKafkaListenerAspectTest {
     private ProceedingJoinPoint joinPoint;
 
     @Mock
-    private Message<message_send> messageSendMessage;
+    private Message<email_send> emailSendMessage;
     @Mock
-    private message_send messageSend;
+    private email_send emailSend;
     @Mock
     private Message<String> invalidMessage;
 
@@ -77,7 +77,7 @@ class LoggingKafkaListenerAspectTest {
 
     @Test
     @ExtendWith(OutputCaptureExtension.class)
-    void shouldManageMessageSendStructuredLogging(CapturedOutput capture) throws Throwable {
+    void shouldManageEmailSendStructuredLogging(CapturedOutput capture) throws Throwable {
         // given
         MessageHeaders headers = new MessageHeaders(
                 Map.of(
@@ -85,10 +85,10 @@ class LoggingKafkaListenerAspectTest {
                         RECEIVED_PARTITION, 0,
                         OFFSET, 0L));
         Object expected = "result";
-        when(messageSendMessage.getHeaders()).thenReturn(headers);
-        when(joinPoint.getArgs()).thenReturn(new Object[]{messageSendMessage});
-        when(messageSendMessage.getPayload()).thenReturn(messageSend);
-        when(messageSend.getMessageId()).thenReturn(MESSAGE_ID);
+        when(emailSendMessage.getHeaders()).thenReturn(headers);
+        when(joinPoint.getArgs()).thenReturn(new Object[]{emailSendMessage});
+        when(emailSendMessage.getPayload()).thenReturn(emailSend);
+        when(emailSend.getMessageId()).thenReturn(MESSAGE_ID);
         when(joinPoint.proceed()).thenReturn(expected);
 
         // when
@@ -111,10 +111,10 @@ class LoggingKafkaListenerAspectTest {
                         RECEIVED_PARTITION, 0,
                         OFFSET, 0L));
 
-        when(joinPoint.getArgs()).thenReturn(new Object[]{messageSendMessage});
-        when(messageSendMessage.getPayload()).thenReturn(messageSend);
-        when(messageSendMessage.getHeaders()).thenReturn(headers);
-        when(messageSend.getMessageId()).thenReturn(MESSAGE_ID);
+        when(joinPoint.getArgs()).thenReturn(new Object[]{emailSendMessage});
+        when(emailSendMessage.getPayload()).thenReturn(emailSend);
+        when(emailSendMessage.getHeaders()).thenReturn(headers);
+        when(emailSend.getMessageId()).thenReturn(MESSAGE_ID);
         when(joinPoint.proceed()).thenThrow(RetryableException.class);
 
         // when
@@ -137,10 +137,10 @@ class LoggingKafkaListenerAspectTest {
                         RECEIVED_TOPIC, TOPIC,
                         RECEIVED_PARTITION, 0,
                         OFFSET, 0L));
-        when(joinPoint.getArgs()).thenReturn(new Object[]{messageSendMessage});
-        when(messageSendMessage.getPayload()).thenReturn(messageSend);
-        when(messageSendMessage.getHeaders()).thenReturn(headers);
-        when(messageSend.getMessageId()).thenReturn(MESSAGE_ID);
+        when(joinPoint.getArgs()).thenReturn(new Object[]{emailSendMessage});
+        when(emailSendMessage.getPayload()).thenReturn(emailSend);
+        when(emailSendMessage.getHeaders()).thenReturn(headers);
+        when(emailSend.getMessageId()).thenReturn(MESSAGE_ID);
         when(joinPoint.proceed()).thenThrow(RetryableException.class);
 
         // when

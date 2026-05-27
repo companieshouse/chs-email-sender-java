@@ -21,8 +21,8 @@
         <!-- external -->
         <spring.boot.version>4.0.6</spring.boot.version>
         <!-- companies house -->
-        <kafka-models.version>3.0.31</kafka-models.version>
-        <private-api-sdk-java.version>6.0.15</private-api-sdk-java.version>
+        <kafka-models.version>3.0.33</kafka-models.version>
+        <private-api-sdk-java.version>unversioned</private-api-sdk-java.version>
         <structured-logging.version>3.0.57</structured-logging.version>
         <!-- test -->
         <maven-failsafe-plugin.version>3.5.5</maven-failsafe-plugin.version>

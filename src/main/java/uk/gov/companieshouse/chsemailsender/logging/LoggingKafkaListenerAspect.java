@@ -1,6 +1,6 @@
 package uk.gov.companieshouse.chsemailsender.logging;
 
-import email.message_send;
+import email.email_send;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -84,8 +84,8 @@ class LoggingKafkaListenerAspect {
     }
 
     private String extractMessageId(Object payload) {
-        if (payload instanceof message_send messageSend) {
-            return messageSend.getMessageId();
+        if (payload instanceof email_send emailSend) {
+            return emailSend.getMessageId();
         }
         String errorMessage = "Invalid payload type, payload: [%s]".formatted(payload.toString());
         LOGGER.error(errorMessage, DataMapHolder.getLogMap());

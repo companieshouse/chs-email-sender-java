@@ -33,7 +33,12 @@ import java.util.UUID;
 
 @Testcontainers
 @WireMockTest(httpPort = 8889)
-public abstract class AbstractConsumerIT {
+public abstract class AbstractKafkaIT {
+    protected static final String MAIN_TOPIC = "email-send";
+    protected static final String GROUP = "email-sender-consumer-group";
+    protected static final String RETRY_TOPIC = "%s-%s-retry".formatted(MAIN_TOPIC, GROUP);
+    protected static final String ERROR_TOPIC = "%s-%s-error".formatted(MAIN_TOPIC, GROUP);
+    protected static final String INVALID_TOPIC = "%s-%s-invalid".formatted(MAIN_TOPIC, GROUP);
 
     @Container
     protected static final ConfluentKafkaContainer kafka = new ConfluentKafkaContainer("confluentinc/cp-kafka:latest");
@@ -58,7 +63,9 @@ public abstract class AbstractConsumerIT {
         registry.add("kafka.bootstrap-servers", kafka::getBootstrapServers);
     }
 
-    protected abstract List<String> getSubscribedTopics();
+    protected List<String> getSubscribedTopics() {
+        return List.of(MAIN_TOPIC, RETRY_TOPIC, ERROR_TOPIC, INVALID_TOPIC);
+    }
 
     protected static int recordsPerTopic(ConsumerRecords<?, ?> records, String topic) {
         return Iterables.size(records.records(topic));
