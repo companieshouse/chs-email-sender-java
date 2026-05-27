@@ -1,6 +1,5 @@
 package uk.gov.companieshouse.chsemailsender.kafka;
 
-import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.After;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,7 +20,7 @@ public class TestConsumerAspect {
     }
 
     @After("@annotation(org.springframework.kafka.annotation.KafkaListener)")
-    void afterConsume(JoinPoint joinPoint) {
+    void afterConsume() {
         latch.countDown();
     }
 
