@@ -1,13 +1,15 @@
 package uk.gov.companieshouse.chsemailsender.client;
 
-import org.springframework.http.HttpStatusCode;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestClient;
-import org.springframework.web.client.RestClientResponseException;
+import uk.gov.companieshouse.api.InternalApiClient;
+import uk.gov.companieshouse.api.error.ApiErrorResponseException;
+import uk.gov.companieshouse.api.handler.exception.URIValidationException;
+import uk.gov.companieshouse.api.model.ApiResponse;
 import uk.gov.companieshouse.chsemailsender.logging.DataMapHolder;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.logging.LoggerFactory;
+
+import java.util.function.Supplier;
 
 import static uk.gov.companieshouse.chsemailsender.Application.NAMESPACE;
 
@@ -16,36 +18,26 @@ public class NotificationApiClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NAMESPACE);
     private static final String EMAIL_URI = "/email";
-    private static final String HEADER_APP_ID = "appID";
-    private static final String HEADER_TEMPLATE_NAME = "templateName";
-
-    private final RestClient restClient;
+    private final Supplier<InternalApiClient> internalApiClientSupplier;
     private final ResponseHandler responseHandler;
 
-    public NotificationApiClient(RestClient restClient, ResponseHandler responseHandler) {
-        this.restClient = restClient;
+    public NotificationApiClient(Supplier<InternalApiClient> internalApiClientSupplier, ResponseHandler responseHandler) {
+        this.internalApiClientSupplier = internalApiClientSupplier;
         this.responseHandler = responseHandler;
     }
 
     public void postEmail(String templateName, String appId, String data) {
+        InternalApiClient client = internalApiClientSupplier.get();
         try {
-            HttpStatusCode statusCode = restClient.post()
-                    .uri(EMAIL_URI)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .header(HEADER_APP_ID, appId)
-                    .header(HEADER_TEMPLATE_NAME, templateName)
-                    .body(data)
-                    .retrieve()
-                    .toBodilessEntity()
-                    .getStatusCode();
-            LOGGER.info("POST email succeeded for appId: %s with status code: %d"
-                    .formatted(appId, statusCode.value()), DataMapHolder.getLogMap());
-        } catch (RestClientResponseException ex) {
-            String exceptionMessage = "POST failed for %s data, status code: [%d]"
-                    .formatted(data, ex.getStatusCode().value());
+            ApiResponse<Void> response = client.chsEmailHandler().postChsEmail(EMAIL_URI, templateName, appId, data)
+                    .execute();
+            int statusCode = response.getStatusCode();
+            LOGGER.info("POST email succeeded for appId: %s with status code %s".formatted(appId, statusCode), DataMapHolder.getLogMap());
+        } catch (ApiErrorResponseException ex) {
+            String exceptionMessage = "POST failed for %s data, status code: [%d]".formatted(data, ex.getStatusCode());
             responseHandler.handle(ex, exceptionMessage);
-        } catch (Exception ex) {
-            String exceptionMessage = "POST %s failed due to connection error".formatted(EMAIL_URI);
+        } catch (URIValidationException ex) {
+            String exceptionMessage = "POST failed due to invalid URI";
             responseHandler.handle(ex, exceptionMessage);
         }
     }
