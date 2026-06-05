@@ -3,6 +3,10 @@ package uk.gov.companieshouse.chsemailsender.util;
 import email.email_send;
 
 public class TestUtils {
+
+    public static final String EMAIL_URI = "/email";
+
+
     public static email_send createEmailSend() {
         email_send emailSend = new email_send();
         emailSend.setMessageType("sanctions_roe_penalty_payment_received_email");

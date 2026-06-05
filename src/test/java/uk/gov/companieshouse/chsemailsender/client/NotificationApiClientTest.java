@@ -1,23 +1,21 @@
 package uk.gov.companieshouse.chsemailsender.client;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Answers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.companieshouse.api.InternalApiClient;
-import uk.gov.companieshouse.api.error.ApiErrorResponseException;
-import uk.gov.companieshouse.api.handler.exception.URIValidationException;
-import uk.gov.companieshouse.chsemailsender.exception.NonRetryableException;
-import uk.gov.companieshouse.chsemailsender.exception.RetryableException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientResponseException;
 
-import java.util.function.Supplier;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Answers.RETURNS_DEEP_STUBS;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -26,97 +24,76 @@ import static org.mockito.Mockito.when;
 class NotificationApiClientTest {
 
     private static final String EMAIL_URI = "/email";
-    private static final String INVALID_URI = "invalid-uri";
     private static final String POST_FAILED_MSG = "POST failed for %s data, status code: [%d]";
-    private static final String INVALID_URI_MSG = "POST /email failed due to invalid URI";
     private static final String TEMPLATE_NAME = "template-name";
     private static final String APP_ID = "app-id";
     private static final String DATA = "{\"field\":\"value\"}";
 
-    @Mock
-    private Supplier<InternalApiClient> internalApiClientSupplier;
-
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
-    private InternalApiClient internalApiClient;
+    @Mock(answer = RETURNS_DEEP_STUBS)
+    private RestClient restClient;
 
     @Mock
-    private ApiErrorResponseException apiErrorResponseException;
+    private ResponseHandler responseHandler;
 
     @InjectMocks
     private NotificationApiClient notificationApiClient;
 
-    @BeforeEach
-    void setUp() {
-        when(internalApiClientSupplier.get()).thenReturn(internalApiClient);
+    private void stubChain(Object returnValue) {
+        var stub = when(restClient.post()
+                .uri(EMAIL_URI)
+                .contentType(any())
+                .header(anyString(), anyString())
+                .header(anyString(), anyString())
+                .body(DATA)
+                .retrieve()
+                .toBodilessEntity());
+        if (returnValue instanceof Throwable t) {
+            stub.thenThrow(t);
+        } else {
+            stub.thenReturn((ResponseEntity<Void>) returnValue);
+        }
     }
 
     @Test
-    void postEmailShouldSendEmailWhenApiCallSucceeds() throws ApiErrorResponseException, URIValidationException {
-        callPostEmail();
+    void postEmailShouldExecuteApiCallSuccessfully() {
+        stubChain(ResponseEntity.ok().build());
 
-        verify(internalApiClientSupplier, times(1)).get();
-        verify(internalApiClient.chsEmailHandler().postChsEmail(EMAIL_URI, TEMPLATE_NAME, APP_ID, DATA),
-                times(1)).execute();
-    }
-
-    @Test
-    void postEmailShouldThrowNonRetryableExceptionWhenApiReturnsBadRequest() throws ApiErrorResponseException, URIValidationException {
-        when(apiErrorResponseException.getStatusCode()).thenReturn(400);
-        stubExecuteThrows(apiErrorResponseException);
-
-        NonRetryableException actual = assertThrows(NonRetryableException.class,
-                this::callPostEmail);
-
-        assertEquals(POST_FAILED_MSG.formatted(DATA, 400), actual.getMessage());
-        assertInstanceOf(ApiErrorResponseException.class, actual.getCause());
-    }
-
-    @Test
-    void postEmailShouldThrowNonRetryableExceptionWhenApiReturnsConflict() throws ApiErrorResponseException, URIValidationException {
-        when(apiErrorResponseException.getStatusCode()).thenReturn(409);
-        stubExecuteThrows(apiErrorResponseException);
-
-        NonRetryableException actual = assertThrows(NonRetryableException.class,
-                this::callPostEmail);
-
-        assertEquals(POST_FAILED_MSG.formatted(DATA, 409), actual.getMessage());
-        assertInstanceOf(ApiErrorResponseException.class, actual.getCause());
-    }
-
-    @Test
-    void postEmailShouldThrowRetryableExceptionWhenApiReturnsNonMappedStatus() throws ApiErrorResponseException, URIValidationException {
-        when(apiErrorResponseException.getStatusCode()).thenReturn(500);
-        stubExecuteThrows(apiErrorResponseException);
-
-        RetryableException actual = assertThrows(RetryableException.class,
-                this::callPostEmail);
-
-        assertEquals(POST_FAILED_MSG.formatted(DATA, 500), actual.getMessage());
-        assertInstanceOf(ApiErrorResponseException.class, actual.getCause());
-    }
-
-    @Test
-    void postEmailShouldThrowNonRetryableExceptionWhenUriIsInvalid() {
-        URIValidationException uriValidationException = new URIValidationException(INVALID_URI);
-        when(internalApiClient.chsEmailHandler().postChsEmail(EMAIL_URI, TEMPLATE_NAME, APP_ID, DATA))
-                .thenAnswer(invocation -> {
-                    throw uriValidationException;
-                });
-
-        NonRetryableException actual = assertThrows(NonRetryableException.class,
-                this::callPostEmail);
-
-        assertEquals(INVALID_URI_MSG, actual.getMessage());
-        assertInstanceOf(URIValidationException.class, actual.getCause());
-    }
-
-    private void callPostEmail() {
         notificationApiClient.postEmail(TEMPLATE_NAME, APP_ID, DATA);
+
+        verify(responseHandler, never()).handle(any(RestClientResponseException.class), anyString());
+        verify(responseHandler, never()).handle(any(Exception.class), anyString());
     }
 
-    private void stubExecuteThrows(ApiErrorResponseException exception)
-            throws ApiErrorResponseException, URIValidationException {
-        when(internalApiClient.chsEmailHandler().postChsEmail(EMAIL_URI, TEMPLATE_NAME, APP_ID, DATA).execute())
-                .thenThrow(exception);
+    @Test
+    void postEmailShouldDelegateToResponseHandlerWhenApiReturnsBadRequest() {
+        RestClientResponseException ex = new HttpClientErrorException(HttpStatus.BAD_REQUEST);
+        stubChain(ex);
+
+        notificationApiClient.postEmail(TEMPLATE_NAME, APP_ID, DATA);
+
+        verify(responseHandler, times(1))
+                .handle(ex, POST_FAILED_MSG.formatted(DATA, HttpStatus.BAD_REQUEST.value()));
+    }
+
+    @Test
+    void postEmailShouldDelegateToResponseHandlerWhenApiReturnsServerError() {
+        RestClientResponseException ex = new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR);
+        stubChain(ex);
+
+        notificationApiClient.postEmail(TEMPLATE_NAME, APP_ID, DATA);
+
+        verify(responseHandler, times(1))
+                .handle(ex, POST_FAILED_MSG.formatted(DATA, HttpStatus.INTERNAL_SERVER_ERROR.value()));
+    }
+
+    @Test
+    void postEmailShouldDelegateToResponseHandlerWhenConnectionFails() {
+        Exception connectionError = new RuntimeException("connection refused");
+        stubChain(connectionError);
+
+        notificationApiClient.postEmail(TEMPLATE_NAME, APP_ID, DATA);
+
+        verify(responseHandler, times(1))
+                .handle(connectionError, "POST %s failed due to connection error".formatted(EMAIL_URI));
     }
 }

@@ -35,7 +35,7 @@ import java.util.UUID;
 @WireMockTest(httpPort = 8889)
 public abstract class AbstractKafkaIT {
     protected static final String MAIN_TOPIC = "email-send";
-    protected static final String GROUP = "email-sender-consumer-group";
+    protected static final String GROUP = "chs-email-sender";
     protected static final String RETRY_TOPIC = "%s-%s-retry".formatted(MAIN_TOPIC, GROUP);
     protected static final String ERROR_TOPIC = "%s-%s-error".formatted(MAIN_TOPIC, GROUP);
     protected static final String INVALID_TOPIC = "%s-%s-invalid".formatted(MAIN_TOPIC, GROUP);
