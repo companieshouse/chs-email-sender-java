@@ -1,6 +1,6 @@
 package uk.gov.companieshouse.chsemailsender.kafka;
 
-import email.message_send;
+import email.email_send;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.header.internals.RecordHeader;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,7 +29,7 @@ class InvalidMessageRouterTest {
     @Mock
     private MessageFlags flags;
     @Mock
-    private message_send messageSend;
+    private email_send emailSend;
 
     @BeforeEach
     void setup() {
@@ -57,7 +57,7 @@ class InvalidMessageRouterTest {
     @Test
     void testOnSendRoutesMessageToTargetTopicIfRetryable() {
         // given
-        ProducerRecord<String, Object> message = new ProducerRecord<>("main", "key", messageSend);
+        ProducerRecord<String, Object> message = new ProducerRecord<>("main", "key", emailSend);
         when(flags.isRetryable()).thenReturn(true);
 
         // when

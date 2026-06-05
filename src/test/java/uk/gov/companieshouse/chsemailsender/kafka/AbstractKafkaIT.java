@@ -2,7 +2,6 @@ package uk.gov.companieshouse.chsemailsender.kafka;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
-import com.google.common.collect.Iterables;
 import org.apache.avro.io.DatumWriter;
 import org.apache.avro.io.Encoder;
 import org.apache.avro.io.EncoderFactory;
@@ -30,10 +29,16 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.StreamSupport;
 
 @Testcontainers
 @WireMockTest(httpPort = 8889)
-public abstract class AbstractConsumerIT {
+public abstract class AbstractKafkaIT {
+    protected static final String MAIN_TOPIC = "email-send";
+    protected static final String GROUP = "chs-email-sender";
+    protected static final String RETRY_TOPIC = "%s-%s-retry".formatted(MAIN_TOPIC, GROUP);
+    protected static final String ERROR_TOPIC = "%s-%s-error".formatted(MAIN_TOPIC, GROUP);
+    protected static final String INVALID_TOPIC = "%s-%s-invalid".formatted(MAIN_TOPIC, GROUP);
 
     @Container
     protected static final ConfluentKafkaContainer kafka = new ConfluentKafkaContainer("confluentinc/cp-kafka:latest");
@@ -58,10 +63,12 @@ public abstract class AbstractConsumerIT {
         registry.add("kafka.bootstrap-servers", kafka::getBootstrapServers);
     }
 
-    protected abstract List<String> getSubscribedTopics();
+    protected List<String> getSubscribedTopics() {
+        return List.of(MAIN_TOPIC, RETRY_TOPIC, ERROR_TOPIC, INVALID_TOPIC);
+    }
 
     protected static int recordsPerTopic(ConsumerRecords<?, ?> records, String topic) {
-        return Iterables.size(records.records(topic));
+        return (int) StreamSupport.stream(records.records(topic).spliterator(), false).count();
     }
 
     protected static <T> byte[] writePayloadToBytes(T data, Class<T> type) {

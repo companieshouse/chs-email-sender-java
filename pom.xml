@@ -21,8 +21,7 @@
         <!-- external -->
         <spring.boot.version>4.0.6</spring.boot.version>
         <!-- companies house -->
-        <kafka-models.version>3.0.31</kafka-models.version>
-        <private-api-sdk-java.version>6.0.15</private-api-sdk-java.version>
+        <kafka-models.version>3.0.33</kafka-models.version>
         <structured-logging.version>3.0.57</structured-logging.version>
         <!-- test -->
         <maven-failsafe-plugin.version>3.5.5</maven-failsafe-plugin.version>
@@ -32,7 +31,7 @@
         <wiremock-standalone.version>3.13.2</wiremock-standalone.version>
         <!-- sonar -->
         <sonar.coverage.exclusions>**/Application.java</sonar.coverage.exclusions>
-        <kafka-clients.version>4.2.0</kafka-clients.version>
+        <kafka-clients.version>4.3.0</kafka-clients.version>
         <jakarta.annotation-api.version>3.0.0</jakarta.annotation-api.version>
         <avro.version>1.12.1</avro.version>
     </properties>
@@ -113,18 +112,6 @@
             <groupId>uk.gov.companieshouse</groupId>
             <artifactId>kafka-models</artifactId>
             <version>${kafka-models.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>uk.gov.companieshouse</groupId>
-            <artifactId>private-api-sdk-java</artifactId>
-            <version>${private-api-sdk-java.version}</version>
-            <exclusions>
-                <!-- not required, use logback instead -->
-                <exclusion>
-                    <groupId>org.apache.logging.log4j</groupId>
-                    <artifactId>log4j-api</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>uk.gov.companieshouse</groupId>
