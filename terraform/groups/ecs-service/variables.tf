@@ -35,6 +35,18 @@ variable "desired_task_count" {
   default     = 1 # defaulted low for dev environments, override for production
 }
 
+variable "min_task_count" {
+  type        = number
+  description = "The minimum number of tasks for this service."
+  default     = 1
+}
+
+variable "max_task_count" {
+  type        = number
+  description = "The maximum number of tasks for this service."
+  default     = 10
+}
+
 variable "required_cpus" {
   type        = number
   description = "The required cpu resource for this service. 1024 here is 1 vCPU"
@@ -45,12 +57,6 @@ variable "required_memory" {
   type        = number
   description = "The required memory for this service"
   default     = 1024 # defaulted low for node service in dev environments, override for production
-}
-
-variable "max_task_count" {
-  type        = number
-  description = "The maximum number of tasks for this service."
-  default     = 10
 }
 
 variable "use_fargate" {

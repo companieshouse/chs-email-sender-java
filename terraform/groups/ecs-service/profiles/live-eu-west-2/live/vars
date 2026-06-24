@@ -1,2 +1,6 @@
 environment = "live"
 aws_profile = "live-eu-west-2"
+
+desired_task_count = 10
+min_task_count = 10
+max_task_count = 20
