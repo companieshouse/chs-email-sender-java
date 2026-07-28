@@ -1,5 +1,8 @@
 package uk.gov.companieshouse.chsemailsender.serdes;
 
+import static uk.gov.companieshouse.chsemailsender.Application.NAMESPACE;
+
+import java.io.IOException;
 import org.apache.avro.AvroRuntimeException;
 import org.apache.avro.io.DatumReader;
 import org.apache.avro.io.Decoder;
@@ -10,10 +13,6 @@ import uk.gov.companieshouse.chsemailsender.exception.InvalidPayloadException;
 import uk.gov.companieshouse.chsemailsender.logging.DataMapHolder;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.logging.LoggerFactory;
-
-import java.io.IOException;
-
-import static uk.gov.companieshouse.chsemailsender.Application.NAMESPACE;
 
 public class KafkaPayloadDeserialiser<T> implements Deserializer<T> {
 

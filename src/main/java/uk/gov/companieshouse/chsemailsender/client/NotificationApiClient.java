@@ -1,5 +1,7 @@
 package uk.gov.companieshouse.chsemailsender.client;
 
+import static uk.gov.companieshouse.chsemailsender.Application.NAMESPACE;
+
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -8,8 +10,6 @@ import org.springframework.web.client.RestClientResponseException;
 import uk.gov.companieshouse.chsemailsender.logging.DataMapHolder;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.logging.LoggerFactory;
-
-import static uk.gov.companieshouse.chsemailsender.Application.NAMESPACE;
 
 @Component
 public class NotificationApiClient {

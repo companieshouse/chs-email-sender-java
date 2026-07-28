@@ -1,6 +1,7 @@
 package uk.gov.companieshouse.chsemailsender.kafka;
 
 import email.email_send;
+import java.util.Map;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.ByteArraySerializer;
@@ -25,8 +26,6 @@ import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer;
 import uk.gov.companieshouse.chsemailsender.exception.RetryableException;
 import uk.gov.companieshouse.chsemailsender.serdes.KafkaPayloadDeserialiser;
 import uk.gov.companieshouse.chsemailsender.serdes.KafkaPayloadSerialiser;
-
-import java.util.Map;
 
 @Configuration
 @EnableKafka
@@ -65,8 +64,8 @@ public class KafkaConfig {
 
     @Bean
     public ProducerFactory<String, Object> producerFactory(MessageFlags messageFlags,
-                                                           @Value("${kafka.consumer.topic}") String topic,
-                                                           @Value("${kafka.consumer.group}") String groupId) {
+            @Value("${kafka.consumer.topic}") String topic,
+            @Value("${kafka.consumer.group}") String groupId) {
         return new DefaultKafkaProducerFactory<>(
                 Map.of(
                         ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaBrokers,
@@ -89,9 +88,9 @@ public class KafkaConfig {
 
     @Bean
     public RetryTopicConfiguration retryTopicConfiguration(KafkaTemplate<String, Object> template,
-                                                           @Value("${kafka.consumer.group}") String groupId,
-                                                           @Value("${kafka.consumer.retry.max-attempts}") int attempts,
-                                                           @Value("${kafka.consumer.retry.backoff-delay-ms}") int delay) {
+            @Value("${kafka.consumer.group}") String groupId,
+            @Value("${kafka.consumer.retry.max-attempts}") int attempts,
+            @Value("${kafka.consumer.retry.backoff-delay-ms}") int delay) {
         return RetryTopicConfigurationBuilder
                 .newInstance()
                 .doNotAutoCreateRetryTopics() // this is necessary to prevent failing connection during loading of spring app context
