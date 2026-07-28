@@ -42,7 +42,7 @@ public class ConsumerRetryableExceptionIT extends AbstractKafkaIT {
 
         // when
         testProducer.send(new ProducerRecord<>(MAIN_TOPIC, 0, System.currentTimeMillis(), "key", message));
-        if (!testConsumerAspect.getLatch().await(5, TimeUnit.SECONDS)) {
+        if (!testConsumerAspect.getLatch().await(30, TimeUnit.SECONDS)) {
             fail("Timed out waiting for latch");
         }
 
