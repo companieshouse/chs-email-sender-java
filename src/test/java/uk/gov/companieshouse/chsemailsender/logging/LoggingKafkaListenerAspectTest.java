@@ -1,6 +1,19 @@
 package uk.gov.companieshouse.chsemailsender.logging;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.when;
+import static org.springframework.kafka.retrytopic.RetryTopicHeaders.DEFAULT_HEADER_ATTEMPTS;
+import static org.springframework.kafka.support.KafkaHeaders.OFFSET;
+import static org.springframework.kafka.support.KafkaHeaders.RECEIVED_PARTITION;
+import static org.springframework.kafka.support.KafkaHeaders.RECEIVED_TOPIC;
+
 import email.email_send;
+import java.nio.ByteBuffer;
+import java.util.Map;
+import java.util.regex.Pattern;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,20 +27,6 @@ import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
 import uk.gov.companieshouse.chsemailsender.exception.NonRetryableException;
 import uk.gov.companieshouse.chsemailsender.exception.RetryableException;
-
-import java.nio.ByteBuffer;
-import java.util.Map;
-import java.util.regex.Pattern;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.when;
-import static org.springframework.kafka.retrytopic.RetryTopicHeaders.DEFAULT_HEADER_ATTEMPTS;
-import static org.springframework.kafka.support.KafkaHeaders.OFFSET;
-import static org.springframework.kafka.support.KafkaHeaders.RECEIVED_PARTITION;
-import static org.springframework.kafka.support.KafkaHeaders.RECEIVED_TOPIC;
 
 @ExtendWith(MockitoExtension.class)
 class LoggingKafkaListenerAspectTest {

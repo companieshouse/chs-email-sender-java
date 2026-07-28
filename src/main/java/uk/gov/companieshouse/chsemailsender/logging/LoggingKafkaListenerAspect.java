@@ -1,6 +1,14 @@
 package uk.gov.companieshouse.chsemailsender.logging;
 
+import static org.springframework.kafka.retrytopic.RetryTopicHeaders.DEFAULT_HEADER_ATTEMPTS;
+import static org.springframework.kafka.support.KafkaHeaders.OFFSET;
+import static org.springframework.kafka.support.KafkaHeaders.RECEIVED_PARTITION;
+import static org.springframework.kafka.support.KafkaHeaders.RECEIVED_TOPIC;
+import static uk.gov.companieshouse.chsemailsender.Application.NAMESPACE;
+
 import email.email_send;
+import java.nio.ByteBuffer;
+import java.util.Optional;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -12,15 +20,6 @@ import uk.gov.companieshouse.chsemailsender.exception.NonRetryableException;
 import uk.gov.companieshouse.chsemailsender.exception.RetryableException;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.logging.LoggerFactory;
-
-import java.nio.ByteBuffer;
-import java.util.Optional;
-
-import static org.springframework.kafka.retrytopic.RetryTopicHeaders.DEFAULT_HEADER_ATTEMPTS;
-import static org.springframework.kafka.support.KafkaHeaders.OFFSET;
-import static org.springframework.kafka.support.KafkaHeaders.RECEIVED_PARTITION;
-import static org.springframework.kafka.support.KafkaHeaders.RECEIVED_TOPIC;
-import static uk.gov.companieshouse.chsemailsender.Application.NAMESPACE;
 
 @Component
 @Aspect

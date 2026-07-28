@@ -6,7 +6,7 @@ import uk.gov.companieshouse.chsemailsender.client.NotificationApiClient;
 
 @Service
 public class SendEmailService {
-    
+
     private final NotificationApiClient notificationApiClient;
 
     public SendEmailService(NotificationApiClient notificationApiClient) {

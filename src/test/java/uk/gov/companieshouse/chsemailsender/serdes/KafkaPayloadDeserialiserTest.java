@@ -1,6 +1,14 @@
 package uk.gov.companieshouse.chsemailsender.serdes;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static uk.gov.companieshouse.chsemailsender.util.TestUtils.createEmailSend;
+
 import email.email_send;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import org.apache.avro.AvroRuntimeException;
 import org.apache.avro.io.DatumWriter;
 import org.apache.avro.io.Encoder;
@@ -9,15 +17,6 @@ import org.apache.avro.reflect.ReflectDatumWriter;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import uk.gov.companieshouse.chsemailsender.exception.InvalidPayloadException;
-
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static uk.gov.companieshouse.chsemailsender.util.TestUtils.createEmailSend;
 
 class KafkaPayloadDeserialiserTest {
 

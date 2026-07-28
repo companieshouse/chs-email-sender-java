@@ -2,6 +2,13 @@ package uk.gov.companieshouse.chsemailsender.kafka;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.time.Duration;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.stream.StreamSupport;
 import org.apache.avro.io.DatumWriter;
 import org.apache.avro.io.Encoder;
 import org.apache.avro.io.EncoderFactory;
@@ -23,17 +30,10 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.kafka.ConfluentKafkaContainer;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.time.Duration;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.stream.StreamSupport;
-
 @Testcontainers
 @WireMockTest(httpPort = 8889)
 public abstract class AbstractKafkaIT {
+
     protected static final String MAIN_TOPIC = "email-send";
     protected static final String GROUP = "chs-email-sender";
     protected static final String RETRY_TOPIC = "%s-%s-retry".formatted(MAIN_TOPIC, GROUP);

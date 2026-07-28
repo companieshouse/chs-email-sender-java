@@ -1,5 +1,9 @@
 package uk.gov.companieshouse.chsemailsender.serdes;
 
+import static uk.gov.companieshouse.chsemailsender.Application.NAMESPACE;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import org.apache.avro.io.DatumWriter;
 import org.apache.avro.io.Encoder;
 import org.apache.avro.io.EncoderFactory;
@@ -9,11 +13,6 @@ import uk.gov.companieshouse.chsemailsender.exception.NonRetryableException;
 import uk.gov.companieshouse.chsemailsender.logging.DataMapHolder;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.logging.LoggerFactory;
-
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-
-import static uk.gov.companieshouse.chsemailsender.Application.NAMESPACE;
 
 public class KafkaPayloadSerialiser<T> implements Serializer<T> {
 

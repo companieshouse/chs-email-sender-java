@@ -1,16 +1,5 @@
 package uk.gov.companieshouse.chsemailsender.serdes;
 
-import email.email_send;
-import org.apache.avro.io.DatumWriter;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.function.Executable;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.companieshouse.chsemailsender.exception.NonRetryableException;
-
-import java.io.IOException;
-
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -19,6 +8,16 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.spy;
 import static uk.gov.companieshouse.chsemailsender.util.TestUtils.createEmailSend;
+
+import email.email_send;
+import java.io.IOException;
+import org.apache.avro.io.DatumWriter;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.function.Executable;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import uk.gov.companieshouse.chsemailsender.exception.NonRetryableException;
 
 @ExtendWith(MockitoExtension.class)
 class KafkaPayloadSerialiserTest {
