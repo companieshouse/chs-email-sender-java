@@ -5,6 +5,7 @@ import static uk.gov.companieshouse.chsemailsender.Application.NAMESPACE;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientResponseException;
 import uk.gov.companieshouse.chsemailsender.logging.DataMapHolder;
@@ -44,9 +45,9 @@ public class NotificationApiClient {
             String exceptionMessage = "POST failed for appId: %s with  status code: [%d]"
                     .formatted(appId, ex.getStatusCode().value());
             responseHandler.handle(ex, exceptionMessage);
-        } catch (Exception ex) {
-            String exceptionMessage = "POST %s failed due to connection error".formatted(EMAIL_URI);
-            responseHandler.handle(ex, exceptionMessage);
+        } catch (ResourceAccessException ex) {          // I/O, DNS, timeout
+            responseHandler.handleTransport(ex,
+                    "POST %s failed: transport error".formatted(EMAIL_URI));
         }
     }
 }

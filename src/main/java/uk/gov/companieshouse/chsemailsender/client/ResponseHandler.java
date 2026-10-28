@@ -2,7 +2,10 @@ package uk.gov.companieshouse.chsemailsender.client;
 
 import static uk.gov.companieshouse.chsemailsender.Application.NAMESPACE;
 
+import javax.net.ssl.SSLHandshakeException;
+import org.springframework.core.NestedExceptionUtils;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClientResponseException;
 import uk.gov.companieshouse.chsemailsender.exception.NonRetryableException;
 import uk.gov.companieshouse.chsemailsender.exception.RetryableException;
@@ -32,5 +35,15 @@ public class ResponseHandler {
         LOGGER.error(exceptionMessage, ex, DataMapHolder.getLogMap());
         throw new NonRetryableException(exceptionMessage, ex);
     }
+
+    public void handleTransport(ResourceAccessException ex, String msg) {
+        LOGGER.error(msg, ex, DataMapHolder.getLogMap());
+        Throwable root = NestedExceptionUtils.getMostSpecificCause(ex);
+        if (root instanceof SSLHandshakeException) {
+            throw new NonRetryableException(msg, ex);
+        }
+        throw new RetryableException(msg, ex);   // connect/read/DNS
+    }
+
 
 }
