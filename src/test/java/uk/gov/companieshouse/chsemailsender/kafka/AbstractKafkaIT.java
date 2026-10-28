@@ -61,6 +61,7 @@ public abstract class AbstractKafkaIT {
     @DynamicPropertySource
     static void props(DynamicPropertyRegistry registry) {
         registry.add("kafka.bootstrap-servers", kafka::getBootstrapServers);
+        registry.add("internal.api-key", () -> "test-api-key");
     }
 
     protected List<String> getSubscribedTopics() {
