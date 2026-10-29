@@ -62,6 +62,9 @@ public abstract class AbstractKafkaIT {
     static void props(DynamicPropertyRegistry registry) {
         registry.add("kafka.bootstrap-servers", kafka::getBootstrapServers);
         registry.add("internal.api-key", () -> "test-api-key");
+        // Pin retry timing for tests so they stay fast and independent of production defaults.
+        registry.add("kafka.consumer.retry.max-attempts", () -> 5);
+        registry.add("kafka.consumer.retry.backoff-delay-ms", () -> 100);
     }
 
     protected List<String> getSubscribedTopics() {
