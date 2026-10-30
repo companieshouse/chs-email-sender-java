@@ -43,7 +43,7 @@ public class KafkaConfig {
                         ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ErrorHandlingDeserializer.class,
                         ErrorHandlingDeserializer.KEY_DESERIALIZER_CLASS, StringDeserializer.class,
                         ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS, KafkaPayloadDeserialiser.class,
-                        ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest",
+                        ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest",
                         ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false"
                 ),
                 new StringDeserializer(),
