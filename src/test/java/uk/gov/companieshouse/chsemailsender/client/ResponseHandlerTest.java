@@ -47,14 +47,4 @@ class ResponseHandlerTest {
         assertInstanceOf(RestClientResponseException.class, actual.getCause());
     }
 
-    @Test
-    void shouldThrowNonRetryableExceptionForGenericConnectionError() {
-        Exception connectionError = new RuntimeException("connection refused");
-
-        NonRetryableException actual = assertThrows(NonRetryableException.class,
-                () -> responseHandler.handle(connectionError, ERROR_MESSAGE));
-
-        assertEquals(ERROR_MESSAGE, actual.getMessage());
-        assertInstanceOf(RuntimeException.class, actual.getCause());
-    }
 }

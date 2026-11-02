@@ -31,10 +31,6 @@ public class ResponseHandler {
         }
     }
 
-    public void handle(Exception ex, String exceptionMessage) {
-        LOGGER.error(exceptionMessage, ex, DataMapHolder.getLogMap());
-        throw new NonRetryableException(exceptionMessage, ex);
-    }
 
     public void handleTransport(ResourceAccessException ex, String msg) {
         LOGGER.error(msg, ex, DataMapHolder.getLogMap());
