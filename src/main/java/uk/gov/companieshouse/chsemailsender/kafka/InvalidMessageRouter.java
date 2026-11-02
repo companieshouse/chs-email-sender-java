@@ -55,10 +55,6 @@ public class InvalidMessageRouter implements ProducerInterceptor<String, Object>
                         """.formatted(invalidTopic, originalTopic, partition, offset, exception),
                 buildLogMap(originalTopic, partition, offset));
 
-        // Headers are copied so that provenance (original topic/partition/offset/timestamp) and the
-        // failure cause travel with the record, making invalid-topic messages triageable and replayable.
-        // The timestamp is deliberately left unset so the record is retained from its republish time;
-        // the original is preserved in the ORIGINAL_TIMESTAMP header.
         return new ProducerRecord<>(invalidTopic, null, producerRecord.key(), producerRecord.value(),
                 producerRecord.headers());
     }

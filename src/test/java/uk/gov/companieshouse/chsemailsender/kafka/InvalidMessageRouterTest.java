@@ -114,9 +114,24 @@ class InvalidMessageRouterTest {
     }
 
     @Test
-    void testConfigureFailsFastWhenRequiredPropertiesAreMissing() {
-        InvalidMessageRouter router = new InvalidMessageRouter();
+    void testConfigureFailsFastWhenMessageFlagsIsMissing() {
+        // given
+        Map<String, Object> configs = Map.of("invalid-topic", "invalid");
 
-        assertThrows(IllegalStateException.class, () -> router.configure(Map.of("invalid-topic", "invalid")));
+        try (InvalidMessageRouter router = new InvalidMessageRouter()) {
+            // when / then
+            assertThrows(IllegalStateException.class, () -> router.configure(configs));
+        }
+    }
+
+    @Test
+    void testConfigureFailsFastWhenInvalidTopicIsMissing() {
+        // given
+        Map<String, Object> configs = Map.of("message-flags", flags);
+
+        try (InvalidMessageRouter router = new InvalidMessageRouter()) {
+            // when / then
+            assertThrows(IllegalStateException.class, () -> router.configure(configs));
+        }
     }
 }

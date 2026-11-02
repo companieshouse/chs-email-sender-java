@@ -44,9 +44,10 @@ class KafkaPayloadSerialiserTest {
         KafkaPayloadSerialiser<email_send> serialiser = spy(new KafkaPayloadSerialiser<>(email_send.class));
         doReturn(writer).when(serialiser).getDatumWriter();
         doThrow(IOException.class).when(writer).write(any(), any());
+        email_send emailSend = new email_send();
 
         // when
-        Executable actual = () -> serialiser.serialize("topic", new email_send());
+        Executable actual = () -> serialiser.serialize("topic", emailSend);
 
         // then
         NonRetryableException exception = assertThrows(NonRetryableException.class, actual);

@@ -44,10 +44,11 @@ class KafkaPayloadDeserialiserTest {
     @Test
     void testDeserialiseThrowsInvalidPayloadExceptionWhenIOException() {
         // given
+        byte[] payload = writePayloadToBytes("hello", String.class);
         try (KafkaPayloadDeserialiser<email_send> deserialiser = new KafkaPayloadDeserialiser<>(email_send.class)) {
 
             // when
-            Executable actual = () -> deserialiser.deserialize("topic", writePayloadToBytes("hello", String.class));
+            Executable actual = () -> deserialiser.deserialize("topic", payload);
 
             // then
             InvalidPayloadException exception = assertThrows(InvalidPayloadException.class, actual);
@@ -58,10 +59,11 @@ class KafkaPayloadDeserialiserTest {
     @Test
     void testDeserialiseThrowsInvalidPayloadExceptionWhenAvroRuntimeException() {
         // given
+        byte[] payload = "invalid".getBytes(StandardCharsets.UTF_8);
         try (KafkaPayloadDeserialiser<email_send> deserialiser = new KafkaPayloadDeserialiser<>(email_send.class)) {
 
             // when
-            Executable actual = () -> deserialiser.deserialize("topic", "invalid".getBytes(StandardCharsets.UTF_8));
+            Executable actual = () -> deserialiser.deserialize("topic", payload);
 
             // then
             InvalidPayloadException exception = assertThrows(InvalidPayloadException.class, actual);
@@ -125,15 +127,16 @@ class KafkaPayloadDeserialiserTest {
     void testDeserialiseProducesStableFingerprintForIdenticalPayloads() {
         // given
         byte[] payload = "invalid".getBytes(StandardCharsets.UTF_8);
+        byte[] identicalPayload = payload.clone();
         try (KafkaPayloadDeserialiser<email_send> deserialiser = new KafkaPayloadDeserialiser<>(email_send.class)) {
 
             // when
-            String first = assertThrows(InvalidPayloadException.class,
-                    () -> deserialiser.deserialize("topic", payload)).getMessage();
-            String second = assertThrows(InvalidPayloadException.class,
-                    () -> deserialiser.deserialize("topic", payload.clone())).getMessage();
+            Executable firstAttempt = () -> deserialiser.deserialize("topic", payload);
+            Executable secondAttempt = () -> deserialiser.deserialize("topic", identicalPayload);
 
             // then the fingerprint lets operators correlate repeat failures of the same record
+            String first = assertThrows(InvalidPayloadException.class, firstAttempt).getMessage();
+            String second = assertThrows(InvalidPayloadException.class, secondAttempt).getMessage();
             assertEquals(first, second);
         }
     }
