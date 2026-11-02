@@ -86,7 +86,10 @@ class LoggingKafkaListenerAspect {
         if (payload instanceof email_send emailSend) {
             return emailSend.getMessageId();
         }
-        String errorMessage = "Invalid payload type, payload: [%s]".formatted(payload.toString());
+        // Only the type is reported. The payload may carry recipient addresses and template
+        // variables, and this message propagates into the invalid-topic record headers.
+        String errorMessage = "Invalid payload type: [%s]".formatted(
+                payload == null ? "null" : payload.getClass().getName());
         LOGGER.error(errorMessage, DataMapHolder.getLogMap());
         throw new NonRetryableException(errorMessage);
     }

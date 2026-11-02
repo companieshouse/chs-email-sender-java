@@ -40,7 +40,7 @@ class LoggingKafkaListenerAspectTest {
     private static final Pattern MAX_RETRY_ATTEMPTS_REACHED_PATTERN = Pattern.compile(
             "error: Max retry attempts reached|\"message\":\"Max retry attempts reached\"");
     private static final Pattern INVALID_PAYLOAD_PATTERN = Pattern.compile(
-            "error: Invalid payload type, payload: \\[message payload]|\"message\":\"Invalid payload type, payload: \\[message payload]\"");
+            "error: Invalid payload type: \\[java.lang.String]|\"message\":\"Invalid payload type: \\[java.lang.String]\"");
     private static final Pattern REQUEST_ID_INITIALISED_PATTERN = Pattern.compile(
             "request_id: message-send-0-0|\"request_id\":\"message-send-0-0\"");
     private static final Pattern RETRY_COUNT_ZERO_PATTERN = Pattern.compile(
@@ -177,6 +177,8 @@ class LoggingKafkaListenerAspectTest {
         assertThrows(NonRetryableException.class, actual);
         assertTrue(ERROR_EVENT_PATTERN.matcher(capture.getOut()).find());
         assertTrue(INVALID_PAYLOAD_PATTERN.matcher(capture.getOut()).find());
+        // The payload contents must never be logged; only its type.
+        assertFalse(capture.getOut().contains("message payload"));
         assertTrue(REQUEST_ID_INITIALISED_PATTERN.matcher(capture.getOut()).find());
         assertTrue(RETRY_COUNT_ZERO_PATTERN.matcher(capture.getOut()).find());
         assertTrue(MAIN_TOPIC_PATTERN.matcher(capture.getOut()).find());
