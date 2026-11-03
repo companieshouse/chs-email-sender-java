@@ -21,11 +21,11 @@
         <!-- external -->
         <spring.boot.version>4.1.1</spring.boot.version>
         <!-- Spring boot 4.1.1 uses Otel v2.30.0, versions must match for compatibility -->
-        <opentelemetry-bom.version>2.30.0</opentelemetry-bom.version>
-        <opentelemetry-logback-appender.version>2.30.0-alpha</opentelemetry-logback-appender.version>
+        <opentelemetry-bom.version>2.31.1</opentelemetry-bom.version>
+        <opentelemetry-logback-appender.version>2.31.1-alpha</opentelemetry-logback-appender.version>
         <!-- companies house -->
-        <ch-dependency-bom.version>0.1.34</ch-dependency-bom.version>
-        <ch-test-bom.version>0.1.34</ch-test-bom.version>
+        <ch-dependency-bom.version>0.1.36</ch-dependency-bom.version>
+        <ch-test-bom.version>0.1.36</ch-test-bom.version>
         <!-- test -->
         <maven-failsafe-plugin.version>3.6.0</maven-failsafe-plugin.version>
         <maven-surefire-plugin.version>3.6.0</maven-surefire-plugin.version>
@@ -35,12 +35,6 @@
     </properties>
     <dependencyManagement>
         <dependencies>
-            <!-- ch-core-bom (imported via ch-dependency-bom) pins the Jackson 2 and Jackson 3
-                 BOMs as a matched pair: com.fasterxml.jackson:jackson-bom and
-                 tools.jackson:jackson-bom. Do not override either one on its own - Jackson 3
-                 databind resolves its annotations from the Jackson 2 coordinates, so pinning
-                 only one side produces NoClassDefFoundError on annotations added in the newer
-                 line (e.g. com/fasterxml/jackson/annotation/JsonApplyView). -->
             <dependency>
                 <groupId>uk.gov.companieshouse</groupId>
                 <artifactId>ch-dependency-bom</artifactId>
