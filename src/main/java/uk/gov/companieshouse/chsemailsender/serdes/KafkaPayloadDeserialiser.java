@@ -26,13 +26,19 @@ public class KafkaPayloadDeserialiser<T> implements Deserializer<T> {
 
     @Override
     public T deserialize(String topic, byte[] data) {
+        if (data == null) {
+            throw new InvalidPayloadException(
+                    "Invalid payload: null record value (tombstone) received on topic: [%s]".formatted(topic));
+        }
         try {
             Decoder decoder = DecoderFactory.get().binaryDecoder(data, null);
             DatumReader<T> reader = new ReflectDatumReader<>(type);
             return reader.read(null, decoder);
         } catch (IOException | AvroRuntimeException ex) {
-            LOGGER.error("Error deserialising message payload", ex, DataMapHolder.getLogMap());
-            throw new InvalidPayloadException("Invalid payload: [%s] was provided".formatted(new String(data)), ex);
+            LOGGER.error("Error deserialising message payload", ex,
+                    DataMapHolder.getLogMap());
+            throw new InvalidPayloadException("Invalid payload was provided", ex);
         }
     }
+
 }

@@ -1,5 +1,7 @@
 package uk.gov.companieshouse.chsemailsender.client;
 
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Answers.RETURNS_DEEP_STUBS;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -26,6 +28,7 @@ class NotificationApiClientTest {
 
     private static final String EMAIL_URI = "/email";
     private static final String POST_FAILED_MSG = "POST failed for appId: %s with  status code: [%d]";
+    private static final String TRANSPORT_FAILED_MSG = "POST %s failed: transport error";
     private static final String TEMPLATE_NAME = "template-name";
     private static final String APP_ID = "app-id";
     private static final String DATA = "{\"field\":\"value\"}";
@@ -62,7 +65,7 @@ class NotificationApiClientTest {
         notificationApiClient.postEmail(TEMPLATE_NAME, APP_ID, DATA);
 
         verify(responseHandler, never()).handle(any(RestClientResponseException.class), anyString());
-        verify(responseHandler, never()).handle(any(Exception.class), anyString());
+        verify(responseHandler, never()).handleTransport(any(), anyString());
     }
 
     @Test
@@ -88,14 +91,16 @@ class NotificationApiClientTest {
     }
 
     @Test
-    void postEmailShouldDelegateToResponseHandlerWhenConnectionFails() {
-        Exception connectionError = new RuntimeException("connection refused");
-        stubChain(connectionError);
+    void postEmailShouldPropagateWhenUnexpectedRuntimeExceptionIsThrown() {
+        RuntimeException unexpectedError = new RuntimeException("unexpected failure");
+        stubChain(unexpectedError);
 
-        notificationApiClient.postEmail(TEMPLATE_NAME, APP_ID, DATA);
+        RuntimeException thrown = assertThrows(RuntimeException.class,
+                () -> notificationApiClient.postEmail(TEMPLATE_NAME, APP_ID, DATA));
 
-        verify(responseHandler, times(1))
-                .handle(connectionError, "POST %s failed due to connection error".formatted(EMAIL_URI));
+        assertSame(unexpectedError, thrown);
+        verify(responseHandler, never()).handle(any(RestClientResponseException.class), anyString());
+        verify(responseHandler, never()).handleTransport(any(), anyString());
     }
 
     @Test
@@ -107,6 +112,6 @@ class NotificationApiClientTest {
         notificationApiClient.postEmail(TEMPLATE_NAME, APP_ID, DATA);
 
         verify(responseHandler, times(1))
-                .handle(invalidUrlError, "POST %s failed due to connection error".formatted(EMAIL_URI));
+                .handleTransport(invalidUrlError, TRANSPORT_FAILED_MSG.formatted(EMAIL_URI));
     }
 }

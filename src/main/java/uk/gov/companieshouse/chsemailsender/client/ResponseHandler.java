@@ -2,7 +2,9 @@ package uk.gov.companieshouse.chsemailsender.client;
 
 import static uk.gov.companieshouse.chsemailsender.Application.NAMESPACE;
 
+import javax.net.ssl.SSLHandshakeException;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClientResponseException;
 import uk.gov.companieshouse.chsemailsender.exception.NonRetryableException;
 import uk.gov.companieshouse.chsemailsender.exception.RetryableException;
@@ -28,9 +30,16 @@ public class ResponseHandler {
         }
     }
 
-    public void handle(Exception ex, String exceptionMessage) {
-        LOGGER.error(exceptionMessage, ex, DataMapHolder.getLogMap());
-        throw new NonRetryableException(exceptionMessage, ex);
+
+    public void handleTransport(ResourceAccessException ex, String msg) {
+        LOGGER.error(msg, ex, DataMapHolder.getLogMap());
+        // contains() walks the whole cause chain; getMostSpecificCause() would return the
+        // deepest cause (e.g. CertificateException) and miss the SSLHandshakeException above it
+        if (ex.contains(SSLHandshakeException.class)) {
+            throw new NonRetryableException(msg, ex);
+        }
+        throw new RetryableException(msg, ex);
     }
+
 
 }
