@@ -37,7 +37,7 @@ public class KafkaPayloadDeserialiser<T> implements Deserializer<T> {
         } catch (IOException | AvroRuntimeException ex) {
             LOGGER.error("Error deserialising message payload", ex,
                     DataMapHolder.getLogMap());
-            throw new InvalidPayloadException("Invalid payload was provided:", ex);
+            throw new InvalidPayloadException("Invalid payload was provided", ex);
         }
     }
 
