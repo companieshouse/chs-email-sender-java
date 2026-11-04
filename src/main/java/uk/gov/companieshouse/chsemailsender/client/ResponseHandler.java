@@ -3,7 +3,6 @@ package uk.gov.companieshouse.chsemailsender.client;
 import static uk.gov.companieshouse.chsemailsender.Application.NAMESPACE;
 
 import javax.net.ssl.SSLHandshakeException;
-import org.springframework.core.NestedExceptionUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClientResponseException;
@@ -34,11 +33,12 @@ public class ResponseHandler {
 
     public void handleTransport(ResourceAccessException ex, String msg) {
         LOGGER.error(msg, ex, DataMapHolder.getLogMap());
-        Throwable root = NestedExceptionUtils.getMostSpecificCause(ex);
-        if (root instanceof SSLHandshakeException) {
+        // contains() walks the whole cause chain; getMostSpecificCause() would return the
+        // deepest cause (e.g. CertificateException) and miss the SSLHandshakeException above it
+        if (ex.contains(SSLHandshakeException.class)) {
             throw new NonRetryableException(msg, ex);
         }
-        throw new RetryableException(msg, ex);   // connect/read/DNS
+        throw new RetryableException(msg, ex);
     }
 
 

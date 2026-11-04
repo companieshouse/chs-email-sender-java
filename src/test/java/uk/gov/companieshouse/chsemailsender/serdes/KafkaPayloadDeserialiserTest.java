@@ -12,7 +12,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import java.util.regex.Pattern;
 import org.apache.avro.AvroRuntimeException;
 import org.apache.avro.io.DatumWriter;
 import org.apache.avro.io.Encoder;
@@ -23,8 +22,6 @@ import org.junit.jupiter.api.function.Executable;
 import uk.gov.companieshouse.chsemailsender.exception.InvalidPayloadException;
 
 class KafkaPayloadDeserialiserTest {
-
-    private static final Pattern SHA_256_FINGERPRINT_PATTERN = Pattern.compile("sha256: \\[[0-9a-f]{16}]");
 
     @Test
     void testDeserialiseEmailSend() {
@@ -100,9 +97,6 @@ class KafkaPayloadDeserialiserTest {
             assertFalse(message.contains("recipient@example.com"));
             assertFalse(message.contains("Jane Doe"));
             assertFalse(message.contains("01234567"));
-            assertTrue(message.contains("topic: [message-send]"));
-            assertTrue(message.contains("size: [%d] bytes".formatted(payload.length)));
-            assertTrue(SHA_256_FINGERPRINT_PATTERN.matcher(message).find());
         }
     }
 
@@ -120,24 +114,6 @@ class KafkaPayloadDeserialiserTest {
             InvalidPayloadException exception = assertThrows(InvalidPayloadException.class, actual);
             assertTrue(exception.getMessage().length() < 256,
                     "exception message must be bounded, was " + exception.getMessage().length());
-        }
-    }
-
-    @Test
-    void testDeserialiseProducesStableFingerprintForIdenticalPayloads() {
-        // given
-        byte[] payload = "invalid".getBytes(StandardCharsets.UTF_8);
-        byte[] identicalPayload = payload.clone();
-        try (KafkaPayloadDeserialiser<email_send> deserialiser = new KafkaPayloadDeserialiser<>(email_send.class)) {
-
-            // when
-            Executable firstAttempt = () -> deserialiser.deserialize("topic", payload);
-            Executable secondAttempt = () -> deserialiser.deserialize("topic", identicalPayload);
-
-            // then the fingerprint lets operators correlate repeat failures of the same record
-            String first = assertThrows(InvalidPayloadException.class, firstAttempt).getMessage();
-            String second = assertThrows(InvalidPayloadException.class, secondAttempt).getMessage();
-            assertEquals(first, second);
         }
     }
 

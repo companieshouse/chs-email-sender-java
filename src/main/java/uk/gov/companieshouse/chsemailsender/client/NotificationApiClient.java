@@ -45,7 +45,7 @@ public class NotificationApiClient {
             String exceptionMessage = "POST failed for appId: %s with  status code: [%d]"
                     .formatted(appId, ex.getStatusCode().value());
             responseHandler.handle(ex, exceptionMessage);
-        } catch (ResourceAccessException ex) {          // I/O, DNS, timeout
+        } catch (ResourceAccessException ex) {
             responseHandler.handleTransport(ex,
                     "POST %s failed: transport error".formatted(EMAIL_URI));
         }

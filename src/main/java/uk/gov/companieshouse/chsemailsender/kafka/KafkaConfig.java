@@ -35,7 +35,8 @@ public class KafkaConfig {
     private String kafkaBrokers;
 
     @Bean
-    public ConsumerFactory<String, email_send> messageReceiveConsumerFactory() {
+    public ConsumerFactory<String, email_send> messageReceiveConsumerFactory(
+            @Value("${kafka.consumer.max-poll-records}") Integer maxPollRecords) {
         return new DefaultKafkaConsumerFactory<>(
                 Map.of(
                         ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaBrokers,
@@ -44,7 +45,8 @@ public class KafkaConfig {
                         ErrorHandlingDeserializer.KEY_DESERIALIZER_CLASS, StringDeserializer.class,
                         ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS, KafkaPayloadDeserialiser.class,
                         ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest",
-                        ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false"
+                        ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false",
+                        ConsumerConfig.MAX_POLL_RECORDS_CONFIG, maxPollRecords
                 ),
                 new StringDeserializer(),
                 new ErrorHandlingDeserializer<>(new KafkaPayloadDeserialiser<>(email_send.class)));
